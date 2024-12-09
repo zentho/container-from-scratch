@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"golang.org/x/sys/unix"
 )
@@ -40,20 +41,23 @@ func initializeParent() {
 }
 
 func initializeChild() {
-    if err := bindMount("rootfs", "rootfs"); err != nil {
+    absRootfs, err := filepath.Abs("rootfs")
+    if err != nil {
         panic(err)
     }
-    if err := os.MkdirAll("rootfs/old_rootfs", 0755); err != nil {
+
+    if err := bindMount(absRootfs, absRootfs); err != nil {
         panic(err)
     }
-    if err := unix.PivotRoot("rootfs", "rootfs/old_rootfs"); err != nil {
+    oldRoot := filepath.Join(absRootfs, "old_rootfs")
+    if err := os.MkdirAll(oldRoot, 0755); err != nil {
+        panic(err)
+    }
+    if err := unix.PivotRoot(absRootfs, oldRoot); err != nil {
         panic(err)
     }
     if err := os.Chdir("/"); err != nil {
         panic(err)
-    }
-    if len(os.Args) < 3 {
-        panic("No command specified to run")
     }
 
     command := exec.Command(os.Args[2], os.Args[3:]...)
