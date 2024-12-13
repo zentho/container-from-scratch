@@ -1,3 +1,3 @@
-<h1>Linux Container</h1>
+<h1>Container From Scratch</h1>
 
-<p> Container from scratch using Golang, simple project for reviewing containerization </p>
+<p> Container from scratch using Golang, for usage on Linux </p>
